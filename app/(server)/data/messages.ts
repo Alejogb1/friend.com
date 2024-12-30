@@ -1,3 +1,4 @@
+"server only"
 import { eq } from "drizzle-orm";
 import { db } from "../db/db";
 import { messages } from "../db/schema";
