@@ -59,7 +59,7 @@ export default function Chat({ userInfo, chatMessages, info }: {
             <div className={m.role === 'user' ? 'flex items-start w-full gap-2 mb-4 justify-end' : 'flex items-start w-full gap-2 mb-4 justify-start'}>
               <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
                 <Image
-                  src={m.role === "user" ? userInfo.profile_image_url! : info?.character?.profile_image}
+                  src={m.role === "user" ? userInfo?.profile_image_url! : info?.character?.profile_image}
                   alt="User"
                   width={32}
                   height={32}
