@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { UserButton } from '@clerk/nextjs';
+import { UserButton, useUser } from '@clerk/nextjs';
 import { useChat } from 'ai/react';
 import { Send } from 'lucide-react';
 import Image from 'next/image';
@@ -32,8 +32,10 @@ export default function Chat({ userInfo, chatMessages, info }: {
     },
     initialMessages: chatMessages,
   });
-  // console.log("messages?.[0]?.content", messages?.[0]?.content)
-  // console.log("chatMessages", chatMessages?.[0].content)
+
+  const { user } = useUser()
+
+  console.log('user', user)
 
   // Messages are cleared if character is changed
   useEffect(() => {
@@ -51,6 +53,7 @@ export default function Chat({ userInfo, chatMessages, info }: {
   }, [info?.chatParticipants?.chat_id])
 
 
+  console.log('userInfo', userInfo)
   return (
     <>
       <div className="flex flex-col w-full max-w-screen-md min-h-[80vh] px-4 my-[5rem]">
@@ -59,7 +62,7 @@ export default function Chat({ userInfo, chatMessages, info }: {
             <div className={m.role === 'user' ? 'flex items-start w-full gap-2 mb-4 justify-end' : 'flex items-start w-full gap-2 mb-4 justify-start'}>
               <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
                 <Image
-                  src={m.role === "user" ? userInfo?.profile_image_url! : info?.character?.profile_image}
+                  src={m.role === "user" ? user?.imageUrl ? user?.imageUrl : "https://utfs.io/f/MD2AM9SEY8Guqkfz9hSyUVrQdv8uT1kEfN6WayA0SCYRs9x5" : info?.character?.profile_image}
                   alt="User"
                   width={32}
                   height={32}
@@ -68,7 +71,6 @@ export default function Chat({ userInfo, chatMessages, info }: {
 
                   className="w-full h-full object-cover"
                 />
-
               </div>
               <div className={`${m.role !== "user" ? "bg-gray-100" : "bg-black text-white"} rounded-2xl p-3 max-w-[80%]`}>
                 <p>
@@ -90,7 +92,16 @@ export default function Chat({ userInfo, chatMessages, info }: {
           <div
             className="flex justify-center items-center w-full gap-2">
             <div>
-              <UserButton />
+              {user?.imageUrl ? <UserButton /> : <Image
+                src="https://utfs.io/f/MD2AM9SEY8Guqkfz9hSyUVrQdv8uT1kEfN6WayA0SCYRs9x5"
+                alt="User"
+                width={30}
+                height={30}
+                quality={95}
+                sizes={"30px"}
+
+                className="w-full h-full object-cover" />
+              }
             </div>
             <form onSubmit={handleSubmit} className='flex justify-center items-center w-full gap-2'>
               <input

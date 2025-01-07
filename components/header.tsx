@@ -5,6 +5,11 @@ import { motion } from "framer-motion";
 import { ChevronUp, RefreshCcw, Settings } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useTransition } from 'react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
 export default function Header({ info }: any) {
   const [pending, startTransition] = useTransition()
@@ -21,9 +26,6 @@ export default function Header({ info }: any) {
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
         <motion.div className="flex items-center gap-4" layout transition={{ duration: 0.3, ease: "easeInOut" }}>
-          {/* <Button className="p-2 rounded-full" variant="outline">
-            <BellDotIcon />
-          </Button> */}
           <Button
             className="p-2 rounded-full"
             variant="outline"
@@ -72,12 +74,14 @@ export default function Header({ info }: any) {
         </motion.div>
 
         <motion.div className="flex items-center gap-4" layout transition={{ duration: 0.3, ease: "easeInOut" }}>
-          {/* <Button size="icon" variant="outline" className="p-2 rounded-full">
-            <Upload />
-          </Button> */}
-          <Button size="icon" variant="outline" className="p-2 rounded-full">
-            <Settings />
-          </Button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button size="icon" variant="outline" className="p-2 rounded-full">
+                <Settings />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className='text-xs font-semibold'>This icon does nothing, I just added it for vibes.</PopoverContent>
+          </Popover>
         </motion.div>
       </motion.header>
 

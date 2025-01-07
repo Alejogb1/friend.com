@@ -6,7 +6,7 @@ import { db } from "../../db/db";
 import { users } from "../../db/schema";
 
 export const userInfo = async () => {
-  const { userId } = await auth()
+  const { userId } = await auth();
 
   try {
     const result = await db

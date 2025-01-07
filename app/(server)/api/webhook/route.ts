@@ -5,7 +5,6 @@ import { Webhook } from "svix";
 import { userCreate } from "../../data/user/user-create";
 
 export async function POST(req: Request) {
-  console.log("FIRED");
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
 
   if (!WEBHOOK_SECRET) {
