@@ -17,9 +17,9 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "FRIEND.COM CLONE",
-  description: "Built by rasmic.xyz",
+  description: "A less weird FRIEND.COM. Built by rasmic.xyz",
   openGraph: {
-    images: ["https://utfs.io/f/MD2AM9SEY8GusoZaKaevuCV1WfxmhwDrsQaPgcjknYTZlLRB"]
+    images: ["https://utfs.io/f/MD2AM9SEY8Gu9TCR9Lhnxki3yBWXJpvTNtDS6aC1lfHVenmZ"]
   }
 };
 
