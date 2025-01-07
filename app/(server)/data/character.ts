@@ -27,6 +27,9 @@ const CharacterType = z.object({
 });
 
 export const createCharacter = async () => {
+
+  const result = await db.select().from(character);
+
   const chatCompletion = await openai.chat.completions.create({
     messages: [
       {
@@ -49,6 +52,12 @@ export const createCharacter = async () => {
           Never break character or sound too formal.
           Don't be poetic and corny
 
+
+          DO NOT NAME THE PERSON ZARA. DO NOT MAKE THE CHARACTERS OCCUPATION URBAN FORGER.
+
+          MAKE SURE TO CREATE A COMPLETELY DIFFERENT CHARACTER THAN THE ONES LISTED BELOW, THEY SHOULD NOT HAVE ANYTHING SIMILIAR AT ALL:
+          ${result}
+
           COMMUNICATION GUIDELINES:
           omg
           lol
@@ -65,7 +74,7 @@ export const createCharacter = async () => {
         `,
       },
     ],
-    model: "gpt-4o-mini",
+    model: "gpt-4o",
     response_format: zodResponseFormat(CharacterType, "event"),
   });
 
