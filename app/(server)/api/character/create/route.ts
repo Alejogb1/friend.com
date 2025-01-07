@@ -1,13 +1,13 @@
+import { createCharacter } from "@/app/(server)/services/character";
 import { NextResponse } from "next/server";
-import { createCharacter, getAllCharacters } from "../../services/character";
 
-export async function GET() {
+export async function POST() {
   try {
-    const characters = await getAllCharacters();
+    const character = await createCharacter();
     return NextResponse.json({
       status: 200,
       message: "Success",
-      characters,
+      character,
     });
   } catch (error) {
     return NextResponse.json({

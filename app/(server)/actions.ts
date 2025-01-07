@@ -1,5 +1,5 @@
 "use server";
-import { getCharacter } from "@/app/(server)/data/character";
+import { getCharacter } from "@/app/(server)/services/character";
 import { db } from "@/app/(server)/db/db";
 import { chatParticipants } from "@/app/(server)/db/schema";
 import { auth } from "@clerk/nextjs/server";

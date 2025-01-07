@@ -2,7 +2,7 @@
 import { auth } from "@clerk/nextjs/server";
 import OpenAI from "openai";
 import { v4 as uuidv4 } from "uuid";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { fal } from "@fal-ai/client";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
@@ -27,7 +27,6 @@ const CharacterType = z.object({
 });
 
 export const createCharacter = async () => {
-
   const result = await db.select().from(character);
 
   const chatCompletion = await openai.chat.completions.create({
@@ -54,6 +53,8 @@ export const createCharacter = async () => {
 
 
           DO NOT NAME THE PERSON ZARA. DO NOT MAKE THE CHARACTERS OCCUPATION URBAN FORGER.
+
+          THE CHARACTER HAS TO BE A REAL HUMAN. NO SCI-FI, NO ANIME. A REAL PERSON.
 
           MAKE SURE TO CREATE A COMPLETELY DIFFERENT CHARACTER THAN THE ONES LISTED BELOW, THEY SHOULD NOT HAVE ANYTHING SIMILIAR AT ALL:
           ${result}
@@ -227,7 +228,8 @@ const createProfileImage = async (description: string) => {
     input: {
       prompt:
         description +
-        `\n Please make the picture of the person center, like it were a profile picture for a social media profile`,
+        `\n Please make the picture of the person, like it were a profile picture taken for a social media, there full face has to be visible. It's just a picture of them and not a screenshot of a website or profile. Consider this to be an image for their social media profile picture.
+        `,
     },
     logs: true,
     onQueueUpdate: (update) => {
@@ -239,4 +241,8 @@ const createProfileImage = async (description: string) => {
   return {
     imageUrl: result.data?.images?.[0]?.url,
   };
+};
+
+export const getAllCharacters = async () => {
+  return db.select().from(character).orderBy(desc(character.id));
 };

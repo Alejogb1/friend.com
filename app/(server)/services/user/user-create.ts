@@ -3,8 +3,6 @@
 import { db } from "../../db/db";
 import { users } from "../../db/schema";
 
-
-
 export const userCreate = async ({
   email,
   first_name,

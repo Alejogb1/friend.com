@@ -1,15 +1,16 @@
 'use client'
-import { Button } from '@/components/ui/button';
 import { swapCharacter } from '@/app/(server)/actions';
-import { motion } from "framer-motion";
-import { ChevronUp, RefreshCcw, Settings } from 'lucide-react';
-import Image from 'next/image';
-import { useState, useTransition } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
+} from "@/components/ui/popover";
+import { motion } from "framer-motion";
+import { ChevronUp, RefreshCcw, Speech } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useState, useTransition } from 'react';
 
 export default function Header({ info }: any) {
   const [pending, startTransition] = useTransition()
@@ -74,14 +75,11 @@ export default function Header({ info }: any) {
         </motion.div>
 
         <motion.div className="flex items-center gap-4" layout transition={{ duration: 0.3, ease: "easeInOut" }}>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button size="icon" variant="outline" className="p-2 rounded-full">
-                <Settings />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className='text-xs font-semibold'>This icon does nothing, I just added it for vibes.</PopoverContent>
-          </Popover>
+          <Link href="/character">
+            <Button size="icon" variant="outline" className="p-2 rounded-full">
+              <Speech />
+            </Button>
+          </Link>
         </motion.div>
       </motion.header>
 
