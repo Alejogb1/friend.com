@@ -35,7 +35,6 @@ export default function Chat({ userInfo, chatMessages, info }: {
 
   const { user } = useUser()
 
-  console.log('user', user)
 
   // Messages are cleared if character is changed
   useEffect(() => {
@@ -53,7 +52,6 @@ export default function Chat({ userInfo, chatMessages, info }: {
   }, [info?.chatParticipants?.chat_id])
 
 
-  console.log('userInfo', userInfo)
   return (
     <>
       <div className="flex flex-col w-full max-w-screen-md min-h-[80vh] px-4 my-[5rem]">
