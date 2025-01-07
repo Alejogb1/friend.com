@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   title: "FRIEND.COM CLONE",
   description: "A less weird FRIEND.COM. Built by rasmic.xyz",
   openGraph: {
-    images: ["https://utfs.io/f/MD2AM9SEY8Gu9TCR9Lhnxki3yBWXJpvTNtDS6aC1lfHVenmZ"]
+    images: ["https://utfs.io/f/MD2AM9SEY8Gu0M2nNSoxuSJ9ba17ZAls2qn06UEWkzfxOYjD"]
   }
 };
 
