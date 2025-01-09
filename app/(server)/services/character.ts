@@ -7,8 +7,8 @@ import { fal } from "@fal-ai/client";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 import { getChatMessages, insertMessage } from "./messages";
-import { db } from "../db/db";
-import { character, chatParticipants } from "../db/schema";
+import { db } from "../../../db/db";
+import { character, chatParticipants } from "../../../db/schema";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -108,6 +108,27 @@ export const createCharacter = async () => {
     initialMessage,
   });
 };
+
+const createProfileImage = async (description: string) => {
+  const result = await fal.subscribe("fal-ai/flux-pro/v1.1-ultra", {
+    input: {
+      prompt:
+        description +
+        `\n Please make the picture of the person, like it were a profile picture taken for a social media, there full face has to be visible. It's just a picture of them and not a screenshot of a website or profile. Consider this to be an image for their social media profile picture.
+        `,
+    },
+    logs: true,
+    onQueueUpdate: (update) => {
+      if (update.status === "IN_PROGRESS") {
+        update.logs.map((log) => log.message).forEach(console.log);
+      }
+    },
+  });
+  return {
+    imageUrl: result.data?.images?.[0]?.url,
+  };
+};
+
 
 const insertCharacter = async ({
   name,
@@ -220,26 +241,6 @@ const createChat = async ({ char }: any) => {
   return {
     character: char,
     messages: [],
-  };
-};
-
-const createProfileImage = async (description: string) => {
-  const result = await fal.subscribe("fal-ai/flux-pro/v1.1-ultra", {
-    input: {
-      prompt:
-        description +
-        `\n Please make the picture of the person, like it were a profile picture taken for a social media, there full face has to be visible. It's just a picture of them and not a screenshot of a website or profile. Consider this to be an image for their social media profile picture.
-        `,
-    },
-    logs: true,
-    onQueueUpdate: (update) => {
-      if (update.status === "IN_PROGRESS") {
-        update.logs.map((log) => log.message).forEach(console.log);
-      }
-    },
-  });
-  return {
-    imageUrl: result.data?.images?.[0]?.url,
   };
 };
 

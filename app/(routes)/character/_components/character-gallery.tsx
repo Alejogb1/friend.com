@@ -6,7 +6,6 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from '@/components/ui/separator'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
-import { revalidatePath } from 'next/cache'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'

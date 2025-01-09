@@ -16,7 +16,7 @@ export default async function Home() {
         <Header info={info} />
       </div>
       {/** Chat list and Chat form */}
-      <Chat userInfo={result!} chatMessages={info?.messages} info={info}  />
+      <Chat chatMessages={info?.messages} info={info}  />
     </div>
   );
 }
