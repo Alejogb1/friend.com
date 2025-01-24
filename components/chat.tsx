@@ -77,11 +77,10 @@ export default function Chat({
               <div>
                 {m.content && (
                   <div
-                    className={`${
-                      m.role === "user"
-                        ? "bg-[#007AFF] text-white rounded-[20px] rounded-tr-[4px]"
-                        : "bg-[#E9E9EB] dark:bg-[#1C1C1E] text-black dark:text-white rounded-[20px] rounded-tl-[4px]"
-                    } flex flex-col px-[12px] py-[8px] max-w-[280px] w-fit leading-[1.35]`}
+                    className={`${m.role === "user"
+                      ? "bg-[#007AFF] text-white rounded-[20px] rounded-tr-[4px]"
+                      : "bg-[#E9E9EB] dark:bg-[#1C1C1E] text-black dark:text-white rounded-[20px] rounded-tl-[4px]"
+                      } flex flex-col px-[12px] py-[8px] max-w-[280px] w-fit leading-[1.35]`}
                   >
                     <div className="text-[14px] py-1">
                       <Markdown>{m.content}</Markdown>
