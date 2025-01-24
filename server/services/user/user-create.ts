@@ -1,7 +1,8 @@
 "server only"
 
-import { db } from "../../../../db/db";
-import { users } from "../../../../db/schema";
+import { db } from "@/db/db";
+import { users } from "@/db/schema";
+
 
 export const userCreate = async ({
   email,

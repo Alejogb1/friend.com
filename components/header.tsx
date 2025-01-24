@@ -1,11 +1,6 @@
 'use client'
-import { swapCharacter } from '@/app/(server)/actions';
 import { Button } from '@/components/ui/button';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { swapCharacter } from '@/server/actions';
 import { motion } from "framer-motion";
 import { ChevronUp, RefreshCcw, Speech } from 'lucide-react';
 import Image from 'next/image';

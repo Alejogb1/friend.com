@@ -7,8 +7,8 @@ import { fal } from "@fal-ai/client";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 import { getChatMessages, insertMessage } from "./messages";
-import { db } from "../../../db/db";
-import { character, chatParticipants } from "../../../db/schema";
+import { db } from "@/db/db";
+import { character, chatParticipants } from "@/db/schema";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,

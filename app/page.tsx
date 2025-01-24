@@ -1,8 +1,7 @@
 import Chat from '@/components/chat';
 import Header from '@/components/header';
-import { getCharacter } from './(server)/services/character';
-import { userInfo } from './(server)/services/user/user-info';
-
+import { getCharacter } from '@/server/services/character';
+import { userInfo } from '@/server/services/user/user-info';
 export default async function Home() {
 
   const { result } = await userInfo()

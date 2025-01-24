@@ -1,4 +1,4 @@
-import { createCharacter } from "@/app/(server)/services/character";
+import { createCharacter } from "@/server/services/character";
 import { NextResponse } from "next/server";
 
 export async function POST() {

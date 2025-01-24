@@ -1,7 +1,7 @@
 "server only"
+import { db } from "@/db/db";
+import { messages } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { db } from "../../../db/db";
-import { messages } from "../../../db/schema";
 
 // Insert a message
 export const insertMessage = async (

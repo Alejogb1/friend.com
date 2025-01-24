@@ -1,9 +1,9 @@
 "server only";
 
+import { db } from "@/db/db";
+import { users } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
-import { db } from "../../../../db/db";
-import { users } from "../../../../db/schema";
 
 export const userInfo = async () => {
   const { userId } = await auth();
