@@ -1,5 +1,5 @@
+import { getAllCharacters } from "@/server/services/character";
 import { NextResponse } from "next/server";
-import { createCharacter, getAllCharacters } from "../../services/character";
 
 export async function GET() {
   try {
