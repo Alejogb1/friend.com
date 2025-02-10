@@ -1,5 +1,6 @@
 import { insertMessage } from "@/server/services/messages";
-import { openai } from "@ai-sdk/openai";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+
 import { streamText } from "ai";
 
 // Allow streaming responses up to 30 seconds
@@ -8,12 +9,15 @@ export const maxDuration = 30;
 export async function POST(req: Request) {
   const { messages, character, chatId } = await req.json();
 
+  const google = createGoogleGenerativeAI({
+    apiKey: process.env.GOOGLE_API_KEY!,
+  });
   const role =
     messages?.[messages?.length - 1].role === "user" ? "user" : "assistant";
   await insertMessage(chatId, role, messages?.[messages?.length - 1].content);
 
   const result = streamText({
-    model: openai("gpt-4o"),
+    model: google('gemini-1.5-pro-latest'),
     messages,
     system: `
         <character_profile>

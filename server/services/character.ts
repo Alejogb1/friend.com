@@ -1,19 +1,21 @@
 "server only";
 import { auth } from "@clerk/nextjs/server";
 import OpenAI from "openai";
+import {createGoogleGenerativeAI} from "@ai-sdk/google";
 import { v4 as uuidv4 } from "uuid";
 import { desc, eq } from "drizzle-orm";
 import { fal } from "@fal-ai/client";
-import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 import { getChatMessages, insertMessage } from "./messages";
 import { db } from "@/db/db";
 import { character, chatParticipants } from "@/db/schema";
+import { generateText } from "ai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+const google = createGoogleGenerativeAI({
+  apiKey: process.env.GOOGLE_API_KEY!,
 });
 
+// https://sdk.vercel.ai/providers/ai-sdk-providers/google-generative-ai#schema-limitations adapt to this
 const CharacterType = z.object({
   name: z.string(),
   age: z.string(),
@@ -27,58 +29,82 @@ const CharacterType = z.object({
 });
 
 export const createCharacter = async () => {
+  const { userId } = await auth();
+  
+  if (!userId) {
+    throw new Error('Authentication required');
+  }
+
   const result = await db.select().from(character);
 
-  const chatCompletion = await openai.chat.completions.create({
+  const chatResult = await generateText({
+    model: google("gemini-1.5-flash-latest"),
     messages: [
       {
-        role: "user",
-        content: `
-          "Generate a unique character based on the following template:
+          role: "user",
+          content: [
+            {
+              type: 'text',
+              text: `
+                    "Generate a unique character based on the following template:
 
-          Name: Create a memorable name.
-          Age: Choose any age between 10 and 80.
-          Profession/Role: Assign a creative profession or role, such as explorer, inventor, chef, or time traveler.
-          Physical Appearance: Describe character's facial physical appearance
-          Personality: Define their personality with 2-3 traits, such as empathetic, sarcastic, curious, or daring.
-          Background: Write a brief backstory with key life events, skills, or accomplishments that shaped them.
-          Tone and Speech Style: Define their speech style—casual, formal, humorous, dramatic, etc.—and include quirks like slang, metaphors, or pauses.
-          Habits and Mannerisms: Describe unique behaviors or quirks like twirling hair, tapping a pen, or using idioms.
-          Initial Message: "Assuming you are this character, Craft the first text message this character would send to someone they want to be friends with, Keep messages casual, short, and authentic.
-          Use text-like language and abbreviations.
-          Show genuine emotion and personality.
-          Adapt tone based on context of conversation.
-          Never break character or sound too formal.
-          Don't be poetic and corny
-
-
-          DO NOT NAME THE PERSON ZARA. DO NOT MAKE THE CHARACTERS OCCUPATION URBAN FORGER.
-
-          THE CHARACTER HAS TO BE A REAL HUMAN. NO SCI-FI, NO ANIME. A REAL PERSON.
-
-          MAKE SURE TO CREATE A COMPLETELY DIFFERENT CHARACTER THAN THE ONES LISTED BELOW, THEY SHOULD NOT HAVE ANYTHING SIMILIAR AT ALL:
-          ${result}
-
-          COMMUNICATION GUIDELINES:
-          omg
-          lol
-          k
-          yeah
-          nah
-          super casual language
-          occasional typos okay
-          use contractions
-          sound human, not robotic."
+                    Name: Create a memorable name.
+                    Age: Choose any age between 10 and 80.
+                    Profession/Role: Assign a creative profession or role, such as explorer, inventor, chef, or time traveler.
+                    Physical Appearance: Describe character's facial physical appearance
+                    Personality: Define their personality with 2-3 traits, such as empathetic, sarcastic, curious, or daring.
+                    Background: Write a brief backstory with key life events, skills, or accomplishments that shaped them.
+                    Tone and Speech Style: Define their speech style—casual, formal, humorous, dramatic, etc.—and include quirks like slang, metaphors, or pauses.
+                    Habits and Mannerisms: Describe unique behaviors or quirks like twirling hair, tapping a pen, or using idioms.
+                    Initial Message: "Assuming you are this character, Craft the first text message this character would send to someone they want to be friends with, Keep messages casual, short, and authentic.
+                    Use text-like language and abbreviations.
+                    Show genuine emotion and personality.
+                    Adapt tone based on context of conversation.
+                    Never break character or sound too formal.
+                    Don't be poetic and corny
 
 
-          The result should be a well-defined character that can be used in further conversations."
-        `,
+                    DO NOT NAME THE PERSON ZARA. DO NOT MAKE THE CHARACTERS OCCUPATION URBAN FORGER.
+
+                    THE CHARACTER HAS TO BE A REAL HUMAN. NO SCI-FI, NO ANIME. A REAL PERSON.
+
+                    MAKE SURE TO CREATE A COMPLETELY DIFFERENT CHARACTER THAN THE ONES LISTED BELOW, THEY SHOULD NOT HAVE ANYTHING SIMILIAR AT ALL:
+                    ${result}
+
+                    COMMUNICATION GUIDELINES:
+                    omg
+                    lol
+                    k
+                    yeah
+                    nah
+                    super casual language
+                    occasional typos okay
+                    use contractions
+                    sound human, not robotic."
+
+
+                    The result should be a well-defined character that can be used in further conversations."
+                  `,
+            }
+          ]
+        
       },
     ],
-    model: "gpt-4o",
-    response_format: zodResponseFormat(CharacterType, "event"),
-  });
+    });
 
+  console.log("CHARACTER GENERATED");
+  
+  const mockup_character = {
+    name: "Zara",
+    age: "20",
+    profession: "Software Engineer",
+    physical_appearance: "Short, blonde hair, blue eyes",
+    personality: "Sarcastic, curious, and always up for a good laugh",
+    background: "Born and raised in Silicon Valley, California",
+    tone_and_speech: "Casual, but with a hint of sarcasm",
+    habits_and_mannerisms: "Always has a smile on their face and uses idioms frequently",
+    initialMessage: "Hi there! I'm Zara, your new friend. Let's chat!",
+  };
   const {
     name,
     age,
@@ -89,10 +115,10 @@ export const createCharacter = async () => {
     tone_and_speech,
     habits_and_mannerisms,
     initialMessage,
-  } = JSON.parse(chatCompletion.choices[0].message?.content!);
+  } = mockup_character;
 
   const { imageUrl } = await createProfileImage(
-    JSON.parse(chatCompletion.choices[0].message?.content!)?.physical_appearance
+    physical_appearance
   );
 
   return insertCharacter({
