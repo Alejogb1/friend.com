@@ -1,43 +1,59 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useAuth } from "@clerk/nextjs";
 import Chat from '@/components/chat';
 import Header from '@/components/header';
-import { getCharacter, createCharacter } from '@/server/services/character';
-import { userInfo } from '@/server/services/user/user-info';
-import { redirect } from 'next/navigation';
-export default async function Home() {
-  const { result } = await userInfo()
+import RepoInput from '@/components/ui/repo-input';
+export default function Home() {
+  const [repoUrl, setRepoUrl] = useState(() => localStorage.getItem('repoUrl') || '');
 
-  let info;
-  try {
-    info = await getCharacter();
-  } catch (error: any) {
-    if (error.message === "No characters available") {
-      // Create initial character
-      await createCharacter();
-      // Try getting the character again
-      info = await getCharacter();
-    } else {
-      console.error(error);
-      throw error;
-    }
+  const [info, setInfo] = useState<any>(null);
+  const { isLoaded, userId } = useAuth();
+
+
+
+  useEffect(() => {
+    const fetchCharacter = async () => {
+      if (repoUrl && userId) {
+        try {
+          const response = await fetch('/api/character');
+          if (!response.ok) throw new Error('Failed to fetch character');
+          const characterInfo = await response.json();
+          setInfo(characterInfo);
+        } catch (error) {
+          console.error('Failed to fetch character:', error);
+        }
+      }
+    };
+
+    fetchCharacter();
+  }, [repoUrl, userId]);
+
+  if (!isLoaded || !userId) {
+    return <div>Loading user...</div>;
+  }
+  const handleSetRepoUrl = (url: string) => {
+
+    setRepoUrl(url);
+  
+    localStorage.setItem('repoUrl', url);
+  
+  };
+  if (!repoUrl) {
+    return <RepoInput onSubmit={handleSetRepoUrl} />;
   }
 
-  // Ensure we have info before rendering
-  if (!info?.character) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p>Loading character...</p>
-      </div>
-    );
+  if (!info) {
+    return <div>Loading character...</div>;
   }
 
   return (
     <div className="flex flex-col items-center justify-between min-h-screen w-full bg-white">
-      {/* Header */}
       <div className="flex flex-col w-full justify-center items-center border-b fixed ">
         <Header info={info} />
       </div>
-      {/** Chat list and Chat form */}
-      <Chat chatMessages={info?.messages} info={info}  />
+      <Chat chatMessages={info?.messages} info={{...info, repoUrl}} />
     </div>
   );
 }

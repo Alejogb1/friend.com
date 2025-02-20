@@ -4,7 +4,16 @@ import { GeistSans } from 'geist/font/sans';
 import type { Metadata } from "next";
 import "./globals.css";
 import Provider from "@/components/provider";
+import { ErrorBoundary } from 'react-error-boundary';
 
+
+function ErrorFallback({error}:any) {
+
+  console.error("Layout Error:", error);
+
+  return <div>Error: {error.message}</div>
+
+}
 export const metadata: Metadata = {
   title: "FRIEND.COM CLONE",
   description: "A less weird FRIEND.COM. Built by rasmic.xyz",
@@ -20,16 +29,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <ClerkProvider dynamic>
-        <Provider>
-          <body
-            className={`${GeistSans.className} antialiased`}
-          >
+      <body className={`${GeistSans.className} antialiased`}>
+        <ClerkProvider>
+          <Provider>
             {children}
             <Analytics />
-          </body>
-        </Provider>
-      </ClerkProvider>
-    </html >
+          </Provider>
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }

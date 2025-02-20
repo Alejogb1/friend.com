@@ -7,6 +7,7 @@ import { eq } from "drizzle-orm";
 
 export const userInfo = async () => {
   const { userId } = await auth();
+  const isAuthenticated = !!userId;
 
   try {
     const result = await db
@@ -17,12 +18,15 @@ export const userInfo = async () => {
       success: true,
       result: result?.[0],
       error: null,
+      isAuthenticated,
     };
   } catch (error) {
+    console.log(error)
     return {
       success: false,
       result: null,
       error,
+      isAuthenticated,
     };
   }
 };
