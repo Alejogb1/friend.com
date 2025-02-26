@@ -1,6 +1,5 @@
 'use client'
 import { Button } from '@/components/ui/button';
-import { swapCharacter } from '@/server/actions';
 import { motion } from "framer-motion";
 import { ChevronUp, RefreshCcw, Speech } from 'lucide-react';
 import Image from 'next/image';
@@ -21,21 +20,6 @@ export default function Header({ info }: any) {
         layout
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
-        <motion.div className="flex items-center gap-4" layout transition={{ duration: 0.3, ease: "easeInOut" }}>
-          <Button
-            className="p-2 rounded-full"
-            variant="outline"
-            onClick={() => startTransition(async () => { await swapCharacter() })}
-          >
-            <motion.div
-              animate={{ rotate: pending ? 360 : 0 }}
-              transition={{ duration: 1, repeat: pending ? Infinity : 0, ease: "linear" }}
-            >
-              <RefreshCcw />
-            </motion.div>
-          </Button>
-        </motion.div>
-
         <motion.div
           className={`flex ${isExpanded && "flex-col"} justify-center items-center gap-3 cursor-pointer`}
           onClick={() => setIsExpanded(!isExpanded)}

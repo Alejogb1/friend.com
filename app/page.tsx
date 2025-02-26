@@ -5,8 +5,16 @@ import { useAuth } from "@clerk/nextjs";
 import Chat from '@/components/chat';
 import Header from '@/components/header';
 import RepoInput from '@/components/ui/repo-input';
+
+
+
 export default function Home() {
-  const [repoUrl, setRepoUrl] = useState(() => localStorage.getItem('repoUrl') || '');
+  const [repoUrl, setRepoUrl] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('repoUrl') || '';
+    }
+    return '';
+  });
 
   const [info, setInfo] = useState<any>(null);
   const { isLoaded, userId } = useAuth();
@@ -34,11 +42,11 @@ export default function Home() {
     return <div>Loading user...</div>;
   }
   const handleSetRepoUrl = (url: string) => {
-
     setRepoUrl(url);
-  
-    localStorage.setItem('repoUrl', url);
-  
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('repoUrl', url);
+    }
   };
   if (!repoUrl) {
     return <RepoInput onSubmit={handleSetRepoUrl} />;
