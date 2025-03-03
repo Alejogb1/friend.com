@@ -16,6 +16,7 @@ type Message = {
   role: 'user' | 'assistant';
   content: string;
   timestamp?: string;
+  filePaths?: string[];
 };
 interface ChatProps {
   chatMessages: any;
@@ -82,7 +83,7 @@ function parseRepoUrl(url: string): { owner: string; repo: string } {
 }
 
 export default function Chat({ chatMessages, info }: ChatProps) {
-
+  const [filePaths, setFilePaths] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -101,7 +102,7 @@ export default function Chat({ chatMessages, info }: ChatProps) {
   const [input, setInput] = useState('');
   const { user } = useUser();
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // Messages are cleared if character is changed
   useEffect(() => {
     const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3001", {
@@ -111,26 +112,35 @@ export default function Chat({ chatMessages, info }: ChatProps) {
     setSocket(newSocket);
 
     newSocket.on("connect", () => console.log("Socket connected:", newSocket.id));
-    
+
+    console.log("newSocket.on('message', ...) is being called");
     newSocket.on("message", async (message: Message) => {
+      const parsedInput = message.content.split("\n");
+      const extractedFilePaths = parsedInput.filter(line => line.includes("/"));
+      const messageContent = parsedInput.filter(line => !line.includes("/")).join("\n");
+
+      console.log("messageContent:", messageContent);
+      console.log("extractedFilePaths:", extractedFilePaths);
+
       // Insert the assistant's message into the database
       if (info.chatParticipants?.chat_id) {
         try {
-          await insertMessage(info.chatParticipants.chat_id, 'assistant', message.content);
+          await insertMessage(info.chatParticipants.chat_id, 'assistant', messageContent);
         } catch (error) {
           console.error('Error inserting assistant message:', error);
         }
-      }      
+      }
       // Final cleanup for residual paths
-      console.log("Received message :", message);
+      console.log("Received message :", message.content);
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: message.content,
-        timestamp: message.timestamp
-      }]);       
+        content: messageContent,
+        timestamp: message.timestamp,
+        filePaths: extractedFilePaths,
+      }]);
     });
             
-     newSocket.on("error", console.error);
+    newSocket.on("error", console.error);
 
     return () => {
       newSocket.disconnect();
@@ -142,22 +152,27 @@ export default function Chat({ chatMessages, info }: ChatProps) {
     if (!input.trim() || !socket) return;
   
     setIsLoading(true);
-    const userMessage: Message = { 
+    let userMessage: Message = { 
       role: 'user', 
       content: input
     };
     
     try {
+      const parsedInput = input.split("\n");
+      const extractedFilePaths = parsedInput.filter(line => line.includes("/"));
+      const messageToSend = parsedInput.filter(line => !line.includes("/")).join("\n");
+
+      userMessage = { ...userMessage, content: messageToSend };
       setMessages(prev => [...prev, userMessage]);
-      await socket.emitWithAck('message', { 
+      await socket.emitWithAck('message', {
         ...userMessage,
         character: info.character,
         chatId: info.chatParticipants?.chat_id,
-        repoUrl: parseRepoUrl(info.repoUrl)
+        repoUrl: parseRepoUrl(info.repoUrl),
       });
-          // Insert the message into the database
+      // Insert the message into the database
       if (info.chatParticipants?.chat_id) {
-        await insertMessage(info.chatParticipants.chat_id, 'user', input);
+        await insertMessage(info.chatParticipants.chat_id, 'user', messageToSend);
       }
 
     } catch (error) {
@@ -172,7 +187,6 @@ export default function Chat({ chatMessages, info }: ChatProps) {
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setInput(e.target.value);
     };
-  console.log(messages);
   return (
     <>
     <div className="flex flex-col w-full max-w-screen-md min-h-[80vh] px-4 my-[5rem]">
@@ -188,7 +202,7 @@ export default function Chat({ chatMessages, info }: ChatProps) {
       </a>
     </p>
     {
-    messages.map((m: { role: string; content: string; }, index: Key | null | undefined) => (
+    messages.map((m: { role: string; content: string; filePaths?: string[] }, index: Key | null | undefined) => (
       <main key={index}>
         <div
           className={
@@ -208,23 +222,32 @@ export default function Chat({ chatMessages, info }: ChatProps) {
               className="w-full h-full object-cover"
             />
           </div>
-          <div>
-            {m.content && (
-              <div
-                className={`${m.role === "user"
-                  ? "bg-[#007AFF] text-white rounded-[20px] rounded-tr-[4px]"
-                  : "bg-[#E9E9EB] dark:bg-[#1C1C1E] text-black dark:text-white rounded-[20px] rounded-tl-[4px]"
-                  } flex flex-col px-[12px] py-[8px] max-w-[280px] w-fit leading-[1.35]`}
-              >
-                <div className="text-[14px] py-1">
-                  {m.content}
-                </div>
+      <div>
+        {m.filePaths && m.filePaths.length > 0 && (
+          <div className="flex flex-col">
+            {m.filePaths.map((filePath, index) => (
+              <div key={index} className="text-[12px] text-gray-500">
+                {filePath}
               </div>
-            )}{" "}
+            ))}
           </div>
-        </div>
-      </main>
-    ))}
+        )}
+        {m.content && (
+          <div
+            className={`${m.role === "user"
+              ? "bg-[#007AFF] text-white rounded-[20px] rounded-tr-[4px]"
+              : "bg-[#E9E9EB] dark:bg-[#1C1C1E] text-black dark:text-white rounded-[20px] rounded-tl-[4px]"
+              } flex flex-col px-[12px] py-[8px] max-w-[280px] w-fit leading-[1.35]`}
+          >
+            <div className="text-[14px] py-1">
+              {m.content}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  </main>
+))}
   </div>
 
   {/* Footer */}
