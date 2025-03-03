@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { insertMessage, getChatMessages } from "@/server/services/messages";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { useChat } from "ai/react";
 import { Send } from "lucide-react";
@@ -17,47 +18,26 @@ type Message = {
   timestamp?: string;
 };
 interface ChatProps {
-
   chatMessages: any;
-
   info: {
-
     character?: {
-
       id: number;
-
       name: string | null;
-
       age: string | null;
-
       profession: string | null;
-
       physical_appearance: string | null;
-
       personality: string | null;
-
       background: string | null;
-
       tone_and_speech: string | null;
-
       habits_and_mannerisms: string | null;
-
       profile_image: string | null;
-
       initial_message: string | null;
-
     };
-
     chatParticipants?: {
-
       chat_id?: string;
-
     };
-
     repoUrl: string;
-
   };
-
 }
 type SocketMessage = {
   data: Message;
@@ -103,7 +83,19 @@ function parseRepoUrl(url: string): { owner: string; repo: string } {
 
 export default function Chat({ chatMessages, info }: ChatProps) {
 
-  const firstRender = useRef(true);
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      if (info.chatParticipants?.chat_id) {
+        const pastMessages = await getChatMessages(info.chatParticipants.chat_id);
+        console.log("pastMessages:", pastMessages);
+        setMessages(pastMessages);
+      }
+    };
+
+    fetchMessages();
+  }, [info.chatParticipants?.chat_id]);
+
   const [socket, setSocket] = useState<any>(null);
   const [messages, setMessages] = useState<Message[]>(chatMessages);
   const [input, setInput] = useState('');
@@ -119,7 +111,16 @@ export default function Chat({ chatMessages, info }: ChatProps) {
     setSocket(newSocket);
 
     newSocket.on("connect", () => console.log("Socket connected:", newSocket.id));
-    newSocket.on("message", (message: Message) => {
+    
+    newSocket.on("message", async (message: Message) => {
+      // Insert the assistant's message into the database
+      if (info.chatParticipants?.chat_id) {
+        try {
+          await insertMessage(info.chatParticipants.chat_id, 'assistant', message.content);
+        } catch (error) {
+          console.error('Error inserting assistant message:', error);
+        }
+      }      
       // Final cleanup for residual paths
       console.log("Received message :", message);
       setMessages(prev => [...prev, {
@@ -154,6 +155,11 @@ export default function Chat({ chatMessages, info }: ChatProps) {
         chatId: info.chatParticipants?.chat_id,
         repoUrl: parseRepoUrl(info.repoUrl)
       });
+          // Insert the message into the database
+      if (info.chatParticipants?.chat_id) {
+        await insertMessage(info.chatParticipants.chat_id, 'user', input);
+      }
+
     } catch (error) {
       console.error('Message send error:', error);
     } finally {
