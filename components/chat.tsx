@@ -231,14 +231,7 @@ export default function Chat({ chatMessages, info }: ChatProps) {
   <footer className="p-2 w-full bg-white fixed bottom-0">
     <div className="flex justify-center items-end gap-4 w-full">
       <div className="hidden lg:flex items-end justify-start space-x-4 w-full ">
-        <span className="text-xs font-semibold ">rasmic.xyz © 2024</span>
-        <Link
-          href="https://hello.org"
-          target="_blank"
-          className="text-xs font-semibold hover:underline"
-        >
-          company ↗
-        </Link>
+
       </div>
       <div className="flex justify-center items-center w-full gap-2">
         <div>
@@ -274,20 +267,6 @@ export default function Chat({ chatMessages, info }: ChatProps) {
         </form>
       </div>
       <div className="hidden lg:flex items-end justify-end space-x-4 w-full">
-        <Link
-          target="_blank"
-          href="https://x.com/"
-          className="text-xs font-semibold hover:underline"
-        >
-          X ↗
-        </Link>
-        <Link
-          target="_blank"
-          href="https://www.youtube.com/"
-          className="text-xs font-semibold hover:underline"
-        >
-          YouTube ↗
-        </Link>
       </div>
     </div>
   </footer>
