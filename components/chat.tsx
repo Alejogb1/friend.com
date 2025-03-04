@@ -46,21 +46,6 @@ type SocketMessage = {
 
 
 
-const parseContent = (content: string) => {
-  // Split the content into lines, handling different line endings
-  const lines = content.split(/[\r\n]+/);
-
-  // Filter out lines that are filenames or empty
-  const contentLines = lines.filter(line => {
-    // Check if the line is a filename (contains '/') and is not empty
-    return line.trim() !== '' && !line.includes('/');
-  });
-  console.log("contentLines:", contentLines);
-  // Join the content lines and trim whitespace
-  return contentLines.join('\n').trim();
-  
-};
-
 function parseRepoUrl(url: string): { owner: string; repo: string } {
   try {
     const parsedUrl = new URL(url);
@@ -226,7 +211,12 @@ export default function Chat({ chatMessages, info }: ChatProps) {
         {m.filePaths && m.filePaths.length > 0 && (
           <div className="flex flex-col">
             {m.filePaths.map((filePath, index) => (
-              <div key={index} className="text-[12px] text-gray-500">
+              <div
+                rel="noreferrer"
+                className="text-[12px] text-blue-600 underline hover:text-blue-700 flex items-center gap-1 pb-1 cursor-pointer"
+                style={{ cursor: 'pointer' }}
+              >
+                <img src="https://cdn-icons-png.flaticon.com/256/25/25231.png" alt="GitHub" className="w-4 h-4" />
                 {filePath}
               </div>
             ))}
@@ -237,10 +227,10 @@ export default function Chat({ chatMessages, info }: ChatProps) {
             className={`${m.role === "user"
               ? "bg-[#007AFF] text-white rounded-[20px] rounded-tr-[4px]"
               : "bg-[#E9E9EB] dark:bg-[#1C1C1E] text-black dark:text-white rounded-[20px] rounded-tl-[4px]"
-              } flex flex-col px-[12px] py-[8px] max-w-[280px] w-fit leading-[1.35]`}
+              } flex flex-col px-[12px] py-[8px] max-w-[400px] w-fit leading-[1.35]`}
           >
             <div className="text-[14px] py-1">
-              {m.content}
+              <Markdown>{m.content}</Markdown>
             </div>
           </div>
         )}
@@ -293,6 +283,6 @@ export default function Chat({ chatMessages, info }: ChatProps) {
       </div>
     </div>
   </footer>
-</>  
+</>
 );
 }
