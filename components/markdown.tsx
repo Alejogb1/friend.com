@@ -28,9 +28,16 @@ const components: Partial<Components> = {
   },
   strong: ({ node, children, ...props }) => {
     return (
-      <span className="font-semibold" {...props}>
+      <span className="font-semibold text-black" {...props}>
         {children}
       </span>
+    );
+  },
+  code: ({ node, children, ...props }) => {
+    return (
+      <code className="bg-gray-200 p-1 font-bold font-mono underline text-sm" {...props}>
+        {children}
+      </code>
     );
   },
   a: ({ node, children, ...props }) => {
