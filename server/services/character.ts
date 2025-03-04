@@ -343,39 +343,25 @@ export const getCharacter = async (userId: string | null) => {
   }
 
 
-  // Create a new character if no existing participant
-
-  const newCharacter = await createCharacter();
-
-  const chatId = uuidv4();
-
-
-  await db.insert(chatParticipants).values({
-
-    chat_id: chatId,
-
-    character_id: newCharacter.id,
-
-    user_id: userId,
-
-  });
-
-
-  if (newCharacter.initial_message) {
-
-    await insertMessage(chatId, "assistant", newCharacter.initial_message);
-
-  }
-
-
-  return {
-
-    character: newCharacter,
-
-    messages: [],
-
+  // Create a hardcoded character if no existing participant
+  const hardcodedCharacter = {
+    id: "hardcoded",
+    name: "Bard",
+    age: "25",
+    profession: "Software Engineer",
+    physical_appearance: "A charismatic individual with a twinkle in their eye.",
+    personality: "Witty, charming, and adventurous.",
+    background: "A traveler who has seen the world and loves to share stories.",
+    tone_and_speech: "Casual and humorous, with a tendency to exaggerate.",
+    habits_and_mannerisms: "Often gestures dramatically and uses colorful metaphors.",
+    profile_image: "bard.png",
+    initial_message: "Ready for a tale?",
   };
 
+  return {
+    character: hardcodedCharacter,
+    messages: [],
+  };
 };
 
 const createChat = async ({ char }: any) => {
