@@ -174,8 +174,6 @@ export default function Chat({ chatMessages, info }: ChatProps) {
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setInput(e.target.value);
     };
-    console.log("last message: ", messages[messages.length - 1])
-    console.log("number of lines based on splitting m.content: ", messages[messages.length - 1].content.split("\n").length) 
   return (
     <>
     <div className="flex flex-col w-full max-w-screen-md min-h-[80vh] px-4 my-[5rem]">
@@ -225,20 +223,22 @@ export default function Chat({ chatMessages, info }: ChatProps) {
             ))}
           </div>
         )}
-        {m && m.content && m.content.split('\n').map((line, index) => (
-          line.trim() !== "" && (
-            <div
-              className={`${m.role === "user"
-                ? "bg-[#007AFF] text-white rounded-[20px] rounded-tr-[4px]"
-                : "bg-[#E9E9EB] dark:bg-[#1C1C1E] text-black dark:text-white rounded-[20px] rounded-tl-[4px]"
-                } flex flex-col px-[12px] py-[8px] max-w-[400px] w-fit leading-[1.35]`}
-            >
-              <div className="text-[14px] py-1">
-                <Markdown>{line}</Markdown>
+        {m && m.content && (
+          m.content.split('\n').map((line, index) => (
+            line.trim() !== "" && (
+              <div
+                className={`${m.role === "user"
+                  ? "bg-[#007AFF] text-white rounded-[20px] rounded-tr-[4px]"
+                  : "bg-[#E9E9EB] dark:bg-[#1C1C1E] text-black dark:text-white rounded-[20px] rounded-tl-[4px]"
+                  } flex flex-col px-[12px] py-[8px] max-w-[400px] w-fit leading-[1.35]`}
+              >
+                <div className="text-[14px] py-1">
+                  <Markdown>{line}</Markdown>
+                </div>
               </div>
-            </div>
-          )
-        ))}
+            )
+          ))
+        )}
       </div>
     </div>
   </main>
