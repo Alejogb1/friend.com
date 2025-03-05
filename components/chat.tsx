@@ -100,6 +100,8 @@ export default function Chat({ chatMessages, info }: ChatProps) {
 
     console.log("newSocket.on('message', ...) is being called");
     newSocket.on("message", async (message: Message) => {
+      console.log("actual message ", message)
+      console.log("MESSAGE CONTENT (before parsing): ", message.content)
       const parsedInput = message.content.split("\n");
       const extractedFilePaths = parsedInput.filter(line => line.includes("/"));
       const messageContent = parsedInput.filter(line => !line.includes("/")).join("\n");
@@ -172,6 +174,8 @@ export default function Chat({ chatMessages, info }: ChatProps) {
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setInput(e.target.value);
     };
+    console.log("last message: ", messages[messages.length - 1])
+    console.log("number of lines based on splitting m.content: ", messages[messages.length - 1].content.split("\n").length) 
   return (
     <>
     <div className="flex flex-col w-full max-w-screen-md min-h-[80vh] px-4 my-[5rem]">
@@ -188,7 +192,7 @@ export default function Chat({ chatMessages, info }: ChatProps) {
     </p>
     {
     messages.map((m: { role: string; content: string; filePaths?: string[] }, index: Key | null | undefined) => (
-      <main key={index}>
+      <main key={index} className="flex flex-col">
         <div
           className={
             m.role === "user"
@@ -222,18 +226,20 @@ export default function Chat({ chatMessages, info }: ChatProps) {
             ))}
           </div>
         )}
-        {m.content && (
-          <div
-            className={`${m.role === "user"
-              ? "bg-[#007AFF] text-white rounded-[20px] rounded-tr-[4px]"
-              : "bg-[#E9E9EB] dark:bg-[#1C1C1E] text-black dark:text-white rounded-[20px] rounded-tl-[4px]"
-              } flex flex-col px-[12px] py-[8px] max-w-[400px] w-fit leading-[1.35]`}
-          >
-            <div className="text-[14px] py-1">
-              <Markdown>{m.content}</Markdown>
+        {m.content && m.content.split('\n').map((line, index) => (
+          line.trim() !== "" && (
+            <div
+              className={`${m.role === "user"
+                ? "bg-[#007AFF] text-white rounded-[20px] rounded-tr-[4px]"
+                : "bg-[#E9E9EB] dark:bg-[#1C1C1E] text-black dark:text-white rounded-[20px] rounded-tl-[4px]"
+                } flex flex-col px-[12px] py-[8px] max-w-[400px] w-fit leading-[1.35]`}
+            >
+              <div className="text-[14px] py-1">
+                <Markdown>{line}</Markdown>
+              </div>
             </div>
-          </div>
-        )}
+          )
+        ))}
       </div>
     </div>
   </main>
