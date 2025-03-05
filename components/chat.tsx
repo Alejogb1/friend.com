@@ -190,8 +190,7 @@ export default function Chat({ chatMessages, info }: ChatProps) {
         {" "} {new URL(info.repoUrl || "hello.org").pathname.split('/').pop()}
       </a>
     </p>
-    {
-    messages.map((m: { role: string; content: string; filePaths?: string[] }, index: Key | null | undefined) => (
+    {messages && Array.isArray(messages) && messages.map((m: { role: string; content: string; filePaths?: string[] }, index: Key | null | undefined) => (
       <main key={index} className="flex flex-col">
         <div
           className={
@@ -226,7 +225,7 @@ export default function Chat({ chatMessages, info }: ChatProps) {
             ))}
           </div>
         )}
-        {m.content && m.content.split('\n').map((line, index) => (
+        {m && m.content && m.content.split('\n').map((line, index) => (
           line.trim() !== "" && (
             <div
               className={`${m.role === "user"
