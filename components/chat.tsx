@@ -45,7 +45,6 @@ type SocketMessage = {
 };
 
 
-
 function parseRepoUrl(url: string): { owner: string; repo: string } {
   try {
     const parsedUrl = new URL(url);
@@ -54,6 +53,7 @@ function parseRepoUrl(url: string): { owner: string; repo: string } {
     }
     
     const parts = parsedUrl.pathname.split('/').filter(Boolean);
+    console.log("parts:", parts);
     if (parts.length < 2) {
       throw new Error('Invalid GitHub repository URL');
     }
@@ -68,13 +68,12 @@ function parseRepoUrl(url: string): { owner: string; repo: string } {
 }
 
 export default function Chat({ chatMessages, info }: ChatProps) {
-  const [filePaths, setFilePaths] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchMessages = async () => {
       if (info.chatParticipants?.chat_id) {
         const pastMessages = await getChatMessages(info.chatParticipants.chat_id);
-        console.log("pastMessages:", pastMessages);
+        console.log(pastMessages)
         setMessages(pastMessages);
       }
     };
@@ -100,25 +99,23 @@ export default function Chat({ chatMessages, info }: ChatProps) {
 
     console.log("newSocket.on('message', ...) is being called");
     newSocket.on("message", async (message: Message) => {
-      console.log("actual message ", message)
-      console.log("MESSAGE CONTENT (before parsing): ", message.content)
       const parsedInput = message.content.split("\n");
-      const extractedFilePaths = parsedInput.filter(line => line.includes("/"));
-      const messageContent = parsedInput.filter(line => !line.includes("/")).join("\n");
-
-      console.log("messageContent:", messageContent);
-      console.log("extractedFilePaths:", extractedFilePaths);
-
+      const extractedFilePaths = parsedInput.filter(line => line.includes("/") || line.endsWith(".md") || line.endsWith(".py"));
+      let messageContent = parsedInput.filter(line => !line.includes("/") && !line.endsWith(".md") && !line.endsWith(".py")).join("\n");
+      if (messageContent == '') {
+        // messageContent equals to the last element of extractedFilePaths
+        messageContent = extractedFilePaths[extractedFilePaths.length - 1];
+      };
       // Insert the assistant's message into the database
       if (info.chatParticipants?.chat_id) {
         try {
+          console.log("Inserting assistant message:", messageContent);
           await insertMessage(info.chatParticipants.chat_id, 'assistant', messageContent);
         } catch (error) {
           console.error('Error inserting assistant message:', error);
         }
       }
       // Final cleanup for residual paths
-      console.log("Received message :", message.content);
       setMessages(prev => [...prev, {
         role: 'assistant',
         content: messageContent,
@@ -145,6 +142,7 @@ export default function Chat({ chatMessages, info }: ChatProps) {
     };
     
     try {
+
       const parsedInput = input.split("\n");
       const extractedFilePaths = parsedInput.filter(line => line.includes("/"));
       const messageToSend = parsedInput.filter(line => !line.includes("/")).join("\n");
